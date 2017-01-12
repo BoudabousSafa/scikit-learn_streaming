@@ -84,9 +84,3 @@ class DenStream(parameters):
            """
         
         return proba
-
-class micros_cluster:
-    CMC
-    DF1
-    DF2
-    w
