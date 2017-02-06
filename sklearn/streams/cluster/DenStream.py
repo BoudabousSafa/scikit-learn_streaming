@@ -1,4 +1,5 @@
 from sklearn.base import BaseEstimator, ClusterMixin
+from sklearn.neighbors import NearestNeighbors
 import math as math
 
 
@@ -46,16 +47,63 @@ class DenStream(BaseEstimator, ClusterMixin):
         self.tp = math.round(1 / self.lembda * math.log((self.beta * self.mu) / (self.beta * self.mu - 1))) + 1
 
     def fit(self, X, Y):
+        # initialisation
+        # offline dbscan
+        result = None
+        return result
 
-    # initialisation
-    # offline dbscan
+    def merge_point_to_p_cluster(self,x,clusters):
+        cluster_centers = list(map((lambda i: i.getCenter()), clusters))
+        # Apply scikit learn nearest neignbor function over p_micro_cluster_centers in order to get the nearest potential micro-cluster
+        nearest_micro_cluster_center = NearestNeighbors(n_neighbors=1, algorithm='auto').fit(cluster_centers)
+        for i in range(self.p_micro_cluster):
+            if self.p_micro_cluster[i].getCenter() == nearest_micro_cluster_center:
+                cluster_index = i
+                break
+        # self.candidate_cluster = filter(lambda cp: cp.getCenter()== self.nearest_p_micro_cluster, self.p_micro_cluster)
+        e_cluster = self.p_micro_cluster[cluster_index]
+        e_cluster.insert(x)
+        if e_cluster.compute_radius(self.current_timestamp) <= self.epsilon:
+            self.p_micro_cluster[cluster_index].insert(x)
+            return True
+        else:
+            return False
 
-
+    def merge_point_to_o_cluster(self,x,clusters):
+        cluster_centers = list(map((lambda i: i.getCenter()), clusters))
+        # Apply scikit learn nearest neignbor function over p_micro_cluster_centers in order to get the nearest potential micro-cluster
+        nearest_micro_cluster_center = NearestNeighbors(n_neighbors=1, algorithm='auto').fit(cluster_centers)
+        for i in range(self.p_micro_cluster):
+            if self.p_micro_cluster[i].getCenter() == nearest_micro_cluster_center:
+                cluster_index = i
+                break
+        # self.candidate_cluster = filter(lambda cp: cp.getCenter()== self.nearest_p_micro_cluster, self.p_micro_cluster)
+        e_cluster = self.p_micro_cluster[cluster_index]
+        e_cluster.insert(x)
+        if e_cluster.compute_radius(self.current_timestamp) <= self.epsilon:
+            self.o_micro_cluster[cluster_index].insert(x,self.current_timestamp)
+            if(self.o_micro_cluster[cluster_index].getWeight(self.current_timestamp)> self.beta*self.mu):
+                self.p_micro_cluster.append(self.o_micro_cluster[cluster_index])
+                del self.o_micro_cluster[cluster_index]
+            return True
+        else:
+            return False
 
     def partial_fit(self, x, y):
+        self.timestamp +=1
+        self.current_timestamp = self.timestamp
+        # ajout d'instance
+        merged = self.merge_point_to_p_cluster(x,self.p_micro_cluster)
+        if(merged == False):
+            merged = self.merge_point_to_o_cluster(x,self.o_micro_cluster)
+        if(merged == False):
+            new_cluster = self.MicroCluster(lembda=self.lembda)
+            new_cluster.insert(x,self.current_timestamp)
+            self.o_micro_cluster.append(new_cluster)
 
-    # ajout d'instance
-    # maintenance every Tp
+
+        # maintenance every Tp
+
 
 
 
@@ -71,7 +119,7 @@ class DenStream(BaseEstimator, ClusterMixin):
         y :
 
         """
-
+        y_pred=None
         return y_pred
 
     def predict_proba(self, X):
@@ -83,5 +131,5 @@ class DenStream(BaseEstimator, ClusterMixin):
            -------
             
            """
-
+        proba=None
         return proba
