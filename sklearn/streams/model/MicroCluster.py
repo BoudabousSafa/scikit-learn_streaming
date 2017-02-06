@@ -14,7 +14,7 @@ class MicroCluster:
     :parameter squared_sum is  the squared sum of all the points added to the cluster.
     :parameter update_timestamp is used to indicate the last update time of the cluster
     :parameter lembda is Denstream classifier parameter that allows to adjust the importance associated to historical
-    data.It's used in MicroCluster level to compute the fading function necessary in updating th Micro cluster center,
+    data.It's used in MicroCluster level to compute the fadinf function necessary in updating th Micro cluster center,
      weight and radius
     """
 

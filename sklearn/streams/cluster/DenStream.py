@@ -1,6 +1,9 @@
 from sklearn.base import BaseEstimator, ClusterMixin
+from sklearn.utils import check_array
+from sklearn.cluster import DBSCAN
 from sklearn.neighbors import NearestNeighbors
 import math as math
+import numpy as np
 
 
 class DenStream(BaseEstimator, ClusterMixin):
@@ -34,23 +37,36 @@ class DenStream(BaseEstimator, ClusterMixin):
         self.h = h  # horizon : Range of the window.
         self.min_points = min_points  # Minimal number of points cluster has to contain.
         self.init_points_option = init_points_option  # Number of points to use for initialization."
-        self.weight_threshold = weight_threshold;
-        self.lembda = lembda;  # lambda is a defined structure in python, i put 'e' instead of 'a'
-        self.epsilon = epsilon;
-        self.mu = mu;
-        self.beta = beta;
-        self.p_micro_cluster = p_micro_cluster;
-        self.o_micro_cluster = o_micro_cluster;
-        self.init_buffer = init_buffer;
-        self.timestamp = timestamp;
-        self.current_timestamp = current_timestamp;
+        self.weight_threshold = weight_threshold
+        self.lembda = lembda  # lambda is a defined structure in python, i put 'e' instead of 'a'
+        self.epsilon = epsilon
+        self.mu = mu
+        self.beta = beta
+        self.p_micro_cluster = p_micro_cluster
+        self.o_micro_cluster = o_micro_cluster
+        self.init_buffer = init_buffer
+        self.timestamp = timestamp
+        self.current_timestamp = current_timestamp
         self.tp = math.round(1 / self.lembda * math.log((self.beta * self.mu) / (self.beta * self.mu - 1))) + 1
 
-    def fit(self, X, Y):
+    def fit(self, X, Y=None):
         # initialisation
         # offline dbscan
-        result = None
-        return result
+        X= check_array(X, accept_sparse='csr')
+        nb_initial_points = X.shape[0]
+        if nb_initial_points > self.init_points_option:
+            dbscan = DBSCAN(eps= self.epsilon, min_samples = self.min_points)
+            m_cluster_labels = dbscan.fit_predict(X, Y)
+            X = np.column_stack((m_cluster_labels,X))
+            initial_clusters = [ X[X[:,0] == str(l)][:,1:] for l in set(m_cluster_labels) if l != -1]
+            [ self.create_micro_cluster(cluster) for cluster in initial_clusters ]
+
+    def create_micro_cluster(self, cluster):
+        linear_sum = np.zeros(cluster.shape[1])
+        squared_sum = np.zeros(cluster.shape[1])
+        new_m_cluster = self.MicroCluster(nb_points=0, linear_sum= linear_sum, squared_sum= squared_sum, update_timestamp=0, lembda=self.lembda)
+        [new_m_cluster.insert(point, self.current_timestamp) for point in cluster]
+        self.p_micro_cluster.append(new_m_cluster)
 
     def merge_point_to_p_cluster(self,x,clusters):
         cluster_centers = list(map((lambda i: i.getCenter()), clusters))
@@ -103,7 +119,6 @@ class DenStream(BaseEstimator, ClusterMixin):
 
 
         # maintenance every Tp
-
 
 
 
