@@ -119,7 +119,23 @@ class DenStream(BaseEstimator, ClusterMixin):
 
 
         # maintenance every Tp
-
+        if(self.timestamp % self.tp == 0):
+            removeList = [p for p in self.p_micro_cluster if p.get_weight < beta * mu]          
+            
+            for j in removeList:
+                del self.p_micro_cluster[j]
+                
+            for i in range(self.o_micro_cluster):
+                c = self.o_micro_cluster[i]
+                t0 = c.getCreationTime()
+                xsi1 = math.pow(2, -(self.lembda * (self.current_timestamp - t0 + tp))) - 1
+                xsi2 = math.pow(2, -(self.lembda * tp)) - 1
+                xsi = xsi1 / xsi2
+                if c.get_weight(self, self.current_timestamp) < xsi : 
+                    removeList.insert(c)
+                    
+            for j in removeList:
+                del self.o_micro_cluster[j]
 
 
 
