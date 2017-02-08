@@ -25,9 +25,16 @@ class CluStream(BaseEstimator, ClusterMixin):
        -----
        """
 
-    def __init__(self):
-        
-
+    def __init__(self, timeWindow=1, timestamp=-1, initialized=False, maxNumKernels=100, kernelRadiFactor=2, kernels=None,m=None):
+        self.timeWindow = timeWindow #Range of the window
+        self.timestamp = timestamp
+        self.initialized = initialized
+        buffer
+        bufferSize
+        self.maxNumKernels = maxNumKernels # maxNumKernels
+        self.kernelRadiFactor = kernelRadiFactor #
+        self.kernels = kernels
+        self.m = maxNumKernels
     def fit(self, X, Y=None):
        
 
