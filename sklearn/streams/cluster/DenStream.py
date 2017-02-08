@@ -113,14 +113,14 @@ class DenStream(BaseEstimator, ClusterMixin):
         if(merged == False):
             merged = self.merge_point_to_o_cluster(x,self.o_micro_cluster)
         if(merged == False):
-            new_cluster = self.MicroCluster(lembda=self.lembda)
+            new_cluster = self.MicroCluster(lembda=self.lembda, creation_time = self.current_timestamp)
             new_cluster.insert(x,self.current_timestamp)
             self.o_micro_cluster.append(new_cluster)
 
 
         # maintenance every Tp
         if(self.timestamp % self.tp == 0):
-            removeList = [p for p in self.p_micro_cluster if p.get_weight < beta * mu]          
+            removeList = [p for p in self.p_micro_cluster if p.get_weight < self.beta * self.mu]
             
             for j in removeList:
                 del self.p_micro_cluster[j]
@@ -128,8 +128,8 @@ class DenStream(BaseEstimator, ClusterMixin):
             for i in range(self.o_micro_cluster):
                 c = self.o_micro_cluster[i]
                 t0 = c.getCreationTime()
-                xsi1 = math.pow(2, -(self.lembda * (self.current_timestamp - t0 + tp))) - 1
-                xsi2 = math.pow(2, -(self.lembda * tp)) - 1
+                xsi1 = math.pow(2, -(self.lembda * (self.current_timestamp - t0 + self.tp))) - 1
+                xsi2 = math.pow(2, -(self.lembda * self.tp)) - 1
                 xsi = xsi1 / xsi2
                 if c.get_weight(self, self.current_timestamp) < xsi : 
                     removeList.insert(c)
@@ -150,17 +150,7 @@ class DenStream(BaseEstimator, ClusterMixin):
         y :
 
         """
-        y_pred=None
-        return y_pred
-
-    def predict_proba(self, X):
-        """Return probability estimates for the test data X.
-           Parameters
-           ----------
-           
-           Returns
-           -------
-            
-           """
-        proba=None
-        return proba
+        cluster_centers = list(map((lambda i: i.getCenter()), self.p_micro_cluster))
+        dbscan = DBSCAN(eps= 2*self.epsilon, min_samples=self.min_points)
+        result = dbscan.fit_predict(cluster_centers, None)
+        return result
