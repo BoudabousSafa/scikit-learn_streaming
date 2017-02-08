@@ -35,8 +35,12 @@ class CluStream(BaseEstimator, ClusterMixin):
         self.kernelRadiFactor = kernelRadiFactor #
         self.kernels = kernels
         self.m = maxNumKernels
+    
     def fit(self, X, Y=None):
-       
+        
+        
+    def partial_fit(self, x, y):
+        
 
     def predict(self, X):
         """Predict the class labels for the provided data
