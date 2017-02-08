@@ -18,12 +18,13 @@ class MicroCluster:
      weight and radius
     """
 
-    def __init__(self, nb_points=0, linear_sum=None, squared_sum=None, update_timestamp=0, lembda=0.01):
+    def __init__(self, nb_points=0, linear_sum=None, squared_sum=None, update_timestamp=0, lembda=0.01, creation_time= 0):
         self.nb_points = nb_points
         self.linear_sum = linear_sum
         self.squared_sum = squared_sum
         self.update_timestamp = update_timestamp
         self.lembda = lembda
+        self.creation_time = creation_time
 
     def get_center(self, current_timestamp):
         fading_coef = self.fading_function(current_timestamp)
@@ -50,6 +51,9 @@ class MicroCluster:
     def fading_function(self, current_timestamp):
         delta = current_timestamp - self.update_timestamp
         return math.pow(2, -(self.lembda * delta))
+
+    def get_creation_time(self):
+        return self.creation_time
 
     def insert(self,x, current_timestamp):
         self.nb_points += 1
