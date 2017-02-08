@@ -5,7 +5,7 @@ import math as math
 import numpy as np
 
 
-class DenStream(BaseEstimator, ClusterMixin):
+class CluStream(BaseEstimator, ClusterMixin):
     """Implementation of DenStream
        Read more in the :
        Parameters
