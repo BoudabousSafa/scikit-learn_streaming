@@ -1,6 +1,6 @@
 from sklearn.base import BaseEstimator, ClusterMixin
 from sklearn.utils import check_array
-from sklearn.neighbors import NearestNeighbors
+from sklearn.cluster import KMeans
 import math as math
 import numpy as np
 
@@ -25,27 +25,33 @@ class CluStream(BaseEstimator, ClusterMixin):
        -----
        """
 
-    def __init__(self, timeWindow=1, timestamp=-1, initialized=False, maxNumKernels=100, kernelRadiFactor=2,
+    def __init__(self, time_window=1, timestamp=-1, initialized=False, max_num_kernels=100, nb_initial_points , kernel_radifactor=2,
                  kernels=None, m=None):
-        self.timeWindow = timeWindow  # Range of the window
+        self.time_window = time_window  # Range of the window
         self.timestamp = timestamp
         self.initialized = initialized
         self.buffer =
-
-        self.maxNumKernels = maxNumKernels  # maxNumKernels
-        self.kernelRadiFactor = kernelRadiFactor  #
+        self.max_num_kernels = max_num_kernels  # maxNumKernels
+        self.kernel_radifactor = kernel_radifactor  #
         self.kernels = kernels
-
         self.bufferSize = maxNumKernels
         self.m = maxNumKernels
+        self.nb_initial_points = nb_initial_points
 
     def fit(self, X, Y=None):
-
     # use kmeans to generate the q microclusters
+    # initialisation
+        X= check_array(X, accept_sparse='csr')
+        nb_initial_points = X.shape[0]
+        if nb_initial_points > self.init_points_option:
+            kmeans = KMeans(n_clusters=self.max_num_kernels, random_state=1)
+            m_cluster_labels = kmeans.fit_predict(X, Y)
+            X = np.column_stack((m_cluster_labels,X))
+            initial_clusters = [ X[X[:,0] == str(l)][:,1:] for l in set(m_cluster_labels) if l != -1]
+            [ self.create_micro_cluster(cluster) for cluster in initial_clusters ]
 
     def partial_fit(self, x, y):
         # kernel is same as microcluster !
-
         # 1. Determine Closest kernel
         closestKernel = None
         minDistance = sys.float_info.max
