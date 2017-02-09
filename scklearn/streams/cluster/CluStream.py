@@ -73,33 +73,34 @@ class CluStream(BaseEstimator, ClusterMixin):
                 radius = min(distance, radius)
         else:
             radius = closestKernel.get_radius()
+        
         if minDistance < radius:
             closestKernel.insert(x, timestamp)
+        else: 
+            # 3. no fit, free space to insert new kernel
+            threshold = timestamp - timeWindow
 
-        # 3. no fit, free space to insert new kernel
-        threshold = timestamp - timeWindow
+            # 3.1 remove kernels
+            for i in range(self.kernels):
+                if (self.kernels[i].get_relevancdStamp() < threshold):
+                    self.kernels[i] = None  #
 
-        # 3.1 remove kernels
-        for i in range(self.kernels):
-            if (self.kernels[i].get_relevancdStamp() < threshold):
-                self.kernels[i] = None  #
+            # 3.2 merge two kernels
+            closestA = 0
+            closestB = 0
+            minDistance = sys.float_info.max
+            for i in range(self.kernels):
+                centerA = self.kernels[i].get_center()
+                for j:
+                    dist = get_distance(centerA, self.kernels[j].get_center())
+                    if dist < minDistance:
+                        minDistance = dist
+                        closestA = i
+                        closestB = j
 
-        # 3.2 merge two kernels
-        closestA = 0
-        closestB = 0
-        minDistance = sys.float_info.max
-        for i in range(self.kernels):
-            centerA = self.kernels[i].get_center()
-            for j:
-                dist = get_distance(centerA, self.kernels[j].get_center())
-                if dist < minDistance:
-                    minDistance = dist
-                    closestA = i
-                    closestB = j
-
-        assert (closestA != closestB)
-        self.kernels[closestA].insert(self.kernels[closestB])
-        self.kernels[closestB] = None  #
+            assert (closestA != closestB)
+            self.kernels[closestA].insert(self.kernels[closestB])
+            self.kernels[closestB] = None  #
 
     def predict(self, X):
         """Predict the class labels for the provided data
