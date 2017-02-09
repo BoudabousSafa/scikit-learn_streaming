@@ -27,9 +27,7 @@ class MicroCluster:
         self.creation_time = creation_time
 
     def get_center(self, current_timestamp):
-        fading_coef = self.fading_function(current_timestamp)
-        weight = self.get_weight(fading_coef)
-        center = [fading_coef / weight * self.linear_sum[i] for i in range(len(self.linear_sum))]
+        center = [1/self.nb_points * self.linear_sum[i] for i in range(len(self.linear_sum))]
         return center
 
     def get_weight(self, current_timestamp):
@@ -39,17 +37,22 @@ class MicroCluster:
 
     def get_radius(self, current_timestamp):
         fading_coef = self.fading_function(current_timestamp)
-        weight = self.get_weight(fading_coef)
-        radius = [self.compute_radius(i, fading_coef, weight) for i in range(len(self.linear_sum))]
+        weight = self.get_weight(current_timestamp)
+        radius = -1
+        for i in range(len(self.linear_sum)):
+            value = self.compute_radius(i, fading_coef, weight)
+            if value > radius:
+                radius = value
         return radius
 
     def compute_radius(self, index, fading_coef, weight):
         x1 = fading_coef / weight * self.squared_sum[index]
         x2 = (fading_coef / weight * self.linear_sum[index])
-        return math.sqrt(x1 - math.pow(x2, 2))
+        return math.sqrt(round(x1,4) - round(math.pow(x2, 2),4))
 
     def fading_function(self, current_timestamp):
         delta = current_timestamp - self.update_timestamp
+
         return math.pow(2, -(self.lembda * delta))
 
     def get_creation_time(self):
@@ -58,7 +61,7 @@ class MicroCluster:
     def insert(self,x, current_timestamp):
         self.nb_points += 1
         self.update_timestamp = current_timestamp
-        for i in range(x) :
+        for i in range(len(x)):
             self.linear_sum[i] += x[i]
             self.squared_sum[i] += math.pow(x[i],2)
 
