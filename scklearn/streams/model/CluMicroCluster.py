@@ -20,15 +20,22 @@ class CluMicroCluster:
         self.squared_sum = squared_sum
         self.update_timestamp = update_timestamp
         self.creation_time = creation_time
-		    self.linear_time_sum = 0
-		    self.squared_time_sum = 0
+	self.linear_time_sum = 0
+	self.squared_time_sum = 0
+    
+    def get_center(self, current_timestamp):
+        center = self.linear_sum / self.nb_points
+        return center
 
+    def get_creation_time(self):
+        return self.creation_time
+	
     def insert(self,x, current_timestamp):
         self.nb_points += 1
         self.update_timestamp = current_timestamp
         for i in range(x) :
-            self.linear_sum[i] += x[i]
-            self.squared_sum[i] += math.pow(x[i],2)
-			self.linear_time_sum[i] += current_timestamp
-			self.squared_time_sum[i] += math.pow(current_timestamp,2)
+		self.linear_sum[i] += x[i]
+		self.squared_sum[i] += math.pow(x[i],2)
+		self.linear_time_sum[i] += current_timestamp
+		self.squared_time_sum[i] += math.pow(current_timestamp,2)
 			
