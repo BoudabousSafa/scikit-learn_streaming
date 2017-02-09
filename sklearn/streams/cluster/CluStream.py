@@ -43,8 +43,16 @@ class CluStream(BaseEstimator, ClusterMixin):
         
     def partial_fit(self, x, y):
         # kernel is same as microcluster ! 
-        # 1. Determine Closest kernel
         
+        # 1. Determine Closest kernel
+        closestKernel = None
+        minDistance =  sys.float_info.max
+        for i in range(self.kernels):
+            dist = calculate_distance(x, self.kernels[i])
+            if(dist < minDistance):
+                closestKernel = self.kernels[i]
+                minDistancce = dist
+
         # 2. Check whether instance fits into closestKernels
         
         #3. no fit, free space to insert new kernel
