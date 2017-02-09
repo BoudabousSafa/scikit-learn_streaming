@@ -48,18 +48,51 @@ class CluStream(BaseEstimator, ClusterMixin):
         closestKernel = None
         minDistance =  sys.float_info.max
         for i in range(self.kernels):
-            dist = calculate_distance(x, self.kernels[i])
+            dist = get_distance(x, self.kernels[i])
             if(dist < minDistance):
-                closestKernel = self.kernels[i]
+                closestKernel = self.kernels[i] 
                 minDistancce = dist
 
         # 2. Check whether instance fits into closestKernels
-        
+        radius = 0.
+        if(closestKernel.get_weight() == 1):
+            radius = sys.float_info.max
+            center = closestKernel.get_center()
+            for i in range(self.kernels):
+                if self.kernels[i] == closestKernel:
+                    continue
+                distance = get_distance(self.kernels[i], center)
+                radius = min(distance, radius)
+        else: 
+            radius = closestKernel.get_radius()
+        if minDistance < radius :
+            closestKernel.insert(x, timestamp)
+            
+                    
         #3. no fit, free space to insert new kernel
+        threshold = timestamp - timeWindow 
         
         # 3.1 remove kernels
-        
+        for i in range(self.kernels):
+            if(self.kernels[i].get_relevancdStamp() < threshold):
+                self.kernels[i] = None #
+                
         # 3.2 merge two kernels 
+        closestA = 0
+        closestB = 0
+        minDistance = sys.float_info.max
+        for i in range(self.kernels):
+            centerA = self.kernels[i].get_center()
+            for j :
+                dist = get_distance(centerA, self.kernels[j].get_center())
+                if dist < minDistance:
+                    minDistance = dist
+                    closestA = i
+                    closestB = j
+        
+        assert(closestA ! = closestB)
+        self.kernels[closestA].insert(self.kernels[closestB])
+        self.kernels[closestB] = None #
         
         
 
@@ -73,6 +106,6 @@ class CluStream(BaseEstimator, ClusterMixin):
         y :
         """
         
-        knn = nearestNeighbour()
-        result = knn.fit_predict(cluster_centers, None)
+        kmeans = kmeans()
+        result = kmeans.fit_predict(cluster_centers, None)
         return result
