@@ -29,17 +29,30 @@ class CluStream(BaseEstimator, ClusterMixin):
         self.timeWindow = timeWindow #Range of the window
         self.timestamp = timestamp
         self.initialized = initialized
-        buffer
-        bufferSize
+        self.buffer =
+        
         self.maxNumKernels = maxNumKernels # maxNumKernels
         self.kernelRadiFactor = kernelRadiFactor #
         self.kernels = kernels
+        
+        self.bufferSize = maxNumKernels
         self.m = maxNumKernels
     
     def fit(self, X, Y=None):
-        
+        # use kmeans to generate the q microclusters
         
     def partial_fit(self, x, y):
+        # kernel is same as microcluster ! 
+        # 1. Determine Closest kernel
+        
+        # 2. Check whether instance fits into closestKernels
+        
+        #3. no fit, free space to insert new kernel
+        
+        # 3.1 remove kernels
+        
+        # 3.2 merge two kernels 
+        
         
 
     def predict(self, X):
