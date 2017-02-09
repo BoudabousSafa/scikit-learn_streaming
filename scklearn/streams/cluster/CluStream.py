@@ -41,6 +41,18 @@ class CluStream(BaseEstimator, ClusterMixin):
     def fit(self, X, Y=None):
     # use kmeans to generate the q microclusters
     # initialisation
+        '''
+        timeStamp = 0
+        for k in range(k_means.n_clusters):
+            my_members = k_means.labels_ == k
+            micro_cluster = MicroCluster
+            for i, x in enumerate(X):
+                if(my_members[i] == True):
+                    timeStamp += 1
+                    micro_cluster.insert(x, timeStamp)
+            micro_clusters.append(micro_cluster)
+        '''
+        # --------
         X= check_array(X, accept_sparse='csr')
         nb_initial_points = X.shape[0]
         if nb_initial_points > self.init_points_option:
@@ -53,6 +65,7 @@ class CluStream(BaseEstimator, ClusterMixin):
     def partial_fit(self, x, y):
         # kernel is same as microcluster !
         # 1. Determine Closest kernel
+        self.timestamp++
         closestKernel = None
         minDistance = sys.float_info.max
         for i in range(self.kernels):
