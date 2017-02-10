@@ -25,18 +25,11 @@ class CluStream(BaseEstimator, ClusterMixin):
        -----
        """
 
-    def __init__(self, time_window=1, timestamp=-1, initialized=False, max_num_kernels=100, nb_initial_points , kernel_radifactor=2,
-                 kernels=None, m=None):
+    def __init__(self, time_window=1, timestamp=0, nb_initial_points):
         self.time_window = time_window  # Range of the window
-        self.timestamp = timestamp
-        self.initialized = initialized
-        self.buffer =
-        self.max_num_kernels = max_num_kernels  # maxNumKernels
-        self.kernel_radifactor = kernel_radifactor  #
-        self.kernels = kernels
-        self.bufferSize = maxNumKernels
-        self.m = maxNumKernels
+        self.timestamp = timestamp 
         self.nb_initial_points = nb_initial_points
+        self.micro_cluster = micro_cluster
 
     def fit(self, X, Y=None):
     # use kmeans to generate the q microclusters
@@ -61,6 +54,15 @@ class CluStream(BaseEstimator, ClusterMixin):
             X = np.column_stack((m_cluster_labels,X))
             initial_clusters = [ X[X[:,0] == str(l)][:,1:] for l in set(m_cluster_labels) if l != -1]
             [ self.create_micro_cluster(cluster) for cluster in initial_clusters ]
+            
+            
+    def create_micro_cluster(self, cluster):
+        linear_sum = np.zeros(cluster.shape[1])
+        squared_sum = np.zeros(cluster.shape[1])
+        new_m_cluster = self.CluMicroCluster(nb_points=0, linear_sum= linear_sum, squared_sum= squared_sum, 
+                                             update_timestamp=0)
+        [new_m_cluster.insert(point, self.current_timestamp) for point in cluster]
+        self.micro_cluster.append(new_m_cluster)
 
     def partial_fit(self, x, y):
         # kernel is same as microcluster !
