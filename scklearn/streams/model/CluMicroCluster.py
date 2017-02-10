@@ -15,7 +15,7 @@ class CluMicroCluster:
     """
     
     def __init__(self, nb_points=0, linear_sum=0, squared_sum=0, linear_time_sum=0, squared_time_sum=0,
-		 update_timestamp=0, creation_time= 0, m=0, t=0):
+		 update_timestamp=0, creation_time= 0, max_num_kernels=100, kernel_radifactor=2):
         self.nb_points = nb_points
         self.linear_sum = linear_sum
         self.squared_sum = squared_sum
@@ -23,8 +23,8 @@ class CluMicroCluster:
         self.creation_time = creation_time
 	self.linear_time_sum = linear_time_sum
 	self.squared_time_sum = update_timestamp
-	self.m = m
-	self.t = t
+	self.m = max_num_kernels
+	self.t = kernel_radifactor
 	self.epsilon = 0.00005
 	self.min_variance = math.exp(-50)
 	self.radius_factor = 1.8
