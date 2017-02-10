@@ -25,7 +25,7 @@ class CluStream(BaseEstimator, ClusterMixin):
        -----
        """
 
-    def __init__(self, timeWindow=1, timestamp=-1, initialized=False, maxNumKernels=100, kernelRadiFactor=2, kernels=None,m=None):
+    def __init__(self, timeWindow=1, timestamp=-1, initialized=False, maxNumKernels=100, kernelRadiFactor=2, kernels=None,m=None, n_cluster = 3):
         self.timeWindow = timeWindow #Range of the window
         self.timestamp = timestamp
         self.initialized = initialized
@@ -37,9 +37,23 @@ class CluStream(BaseEstimator, ClusterMixin):
         
         self.bufferSize = maxNumKernels
         self.m = maxNumKernels
+        
+        self.n_cluster = n_cluster
+        self.micro_clusters = None
     
     def fit(self, X, Y=None):
         # use kmeans to generate the q microclusters
+        
+        k_means = KMeans(init='k-means++', n_clusters=self.n_cluster, n_init=10)
+        k_means.fit(X)
+        for k in range(k_means.n_clusters):
+            my_members = k_means.labels_ == k
+            for i, x in enumerate(X):
+                if(my_members[i] == True):
+                    timeStamp += 1
+                    micro_cluster = MicroCluster()
+                    micro_cluster.insert(self, x, timestamp)
+        self.micro_clusters.append(micro_cluster)        
         
     def partial_fit(self, x, y):
         # kernel is same as microcluster ! 
